@@ -1,0 +1,159 @@
+### Summit API - Test Endpoints
+### Utiliser avec REST Client (VS Code) ou IntelliJ HTTP Client
+
+@baseUrl = http://127.0.0.1:8000/api
+@contentType = application/json
+
+### ===== AUTH =====
+
+### Login (obtenir tokens JWT)
+# @name login
+POST {{baseUrl}}/auth/login/
+Content-Type: {{contentType}}
+
+{
+  "username": "admin",
+  "password": "admin123"
+}
+
+### Sauvegarder le token d'accès
+@accessToken = {{login.response.body.access}}
+@refreshToken = {{login.response.body.refresh}}
+
+### Refresh token
+POST {{baseUrl}}/auth/refresh/
+Content-Type: {{contentType}}
+
+{
+  "refresh": "{{refreshToken}}"
+}
+
+### ===== USER (ME) =====
+
+### Get current user profile
+GET {{baseUrl}}/me/
+Authorization: Bearer {{accessToken}}
+
+### Update user profile (PATCH)
+PATCH {{baseUrl}}/me/
+Authorization: Bearer {{accessToken}}
+Content-Type: {{contentType}}
+
+{
+  "first_name": "Admin",
+  "last_name": "Summit",
+  "profile": {
+    "bio": "Passionné d'escalade et admin du blog Summit",
+    "website": "https://summit.local"
+  }
+}
+
+### ===== CATEGORIES =====
+
+### List all categories
+GET {{baseUrl}}/categories/
+
+### Get category by slug
+GET {{baseUrl}}/categories/bloc/
+
+### ===== TAGS =====
+
+### List all tags
+GET {{baseUrl}}/tags/
+
+### Get tag by slug
+GET {{baseUrl}}/tags/debutant/
+
+### ===== ARTICLES =====
+
+### List all articles (paginated)
+GET {{baseUrl}}/articles/
+
+### List articles - page 2
+GET {{baseUrl}}/articles/?page=2
+
+### Filter articles by category
+GET {{baseUrl}}/articles/?category__slug=bloc
+
+### Filter articles by author
+GET {{baseUrl}}/articles/?author__username=admin
+
+### Filter articles by status (need auth for drafts)
+GET {{baseUrl}}/articles/?status=published
+
+### Search articles
+GET {{baseUrl}}/articles/?search=escalade
+
+### Order articles by title
+GET {{baseUrl}}/articles/?ordering=title
+
+### Order articles by date (newest first)
+GET {{baseUrl}}/articles/?ordering=-published_at
+
+### Get article by slug
+GET {{baseUrl}}/articles/comment-debuter-lescalade-en-salle/
+
+### Create article (requires auth)
+POST {{baseUrl}}/articles/
+Authorization: Bearer {{accessToken}}
+Content-Type: {{contentType}}
+
+{
+  "title": "Mon nouvel article test",
+  "excerpt": "Un court résumé de l'article",
+  "content": "Le contenu complet de l'article. Lorem ipsum dolor sit amet...",
+  "image_url": "https://picsum.photos/1200/600",
+  "category": 1,
+  "tags": [1, 2, 3],
+  "status": "draft"
+}
+
+### Update article (PATCH)
+PATCH {{baseUrl}}/articles/mon-nouvel-article-test/
+Authorization: Bearer {{accessToken}}
+Content-Type: {{contentType}}
+
+{
+  "status": "published"
+}
+
+### Delete article
+DELETE {{baseUrl}}/articles/mon-nouvel-article-test/
+Authorization: Bearer {{accessToken}}
+
+### ===== COMMENTS =====
+
+### List comments on an article
+GET {{baseUrl}}/articles/comment-debuter-lescalade-en-salle/comments/
+
+### Create comment (requires auth)
+POST {{baseUrl}}/articles/comment-debuter-lescalade-en-salle/comments/
+Authorization: Bearer {{accessToken}}
+Content-Type: {{contentType}}
+
+{
+  "content": "Super article, merci pour ces conseils !"
+}
+
+### Reply to a comment (requires auth)
+POST {{baseUrl}}/articles/comment-debuter-lescalade-en-salle/comments/
+Authorization: Bearer {{accessToken}}
+Content-Type: {{contentType}}
+
+{
+  "content": "Je suis d'accord avec toi !",
+  "parent": 1
+}
+
+### Update comment
+PATCH {{baseUrl}}/articles/comment-debuter-lescalade-en-salle/comments/1/
+Authorization: Bearer {{accessToken}}
+Content-Type: {{contentType}}
+
+{
+  "content": "Commentaire modifié"
+}
+
+### Delete comment
+DELETE {{baseUrl}}/articles/comment-debuter-lescalade-en-salle/comments/1/
+Authorization: Bearer {{accessToken}}
