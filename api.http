@@ -1,5 +1,5 @@
 ### Summit API - Test Endpoints
-### Utiliser avec REST Client (VS Code) ou IntelliJ HTTP Client
+### Utiliser avec REST Client
 
 @baseUrl = http://127.0.0.1:8000/api
 @contentType = application/json
